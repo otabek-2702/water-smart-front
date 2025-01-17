@@ -1,5 +1,6 @@
 <script setup>
 import axios from "@/axios";
+import DeleteItemDialog from "@/components/DeleteItemDialog.vue";
 import Skeleton from "@/components/Skeleton.vue";
 import AddNewDrawer from "@/views/supplier/AddNewDrawer.vue";
 import { watch } from "vue";
@@ -25,7 +26,7 @@ const fetchData = async (force) => {
     isFetching.value = true;
     const response = await axios.get("suppliers", {
       params: {
-        per_page: 1,
+        per_page: 30,
         page: current_page.value ?? 1,
         search: finalSearch.value,
       },
@@ -56,6 +57,15 @@ const handleInput = (val) => {
 
 // Add, Edit, Delete
 const isAddNewDrawerVisible = ref(false);
+const deleteData = ref({ id: 0, title: "" });
+
+const handle = () => console.log("handle clicked");
+const handleDelete = (data) => {
+  deleteData.value = {
+    id: data.id,
+    title: data.name,
+  };
+};
 </script>
 
 <template>
@@ -90,6 +100,7 @@ const isAddNewDrawerVisible = ref(false);
           <th>Address</th>
           <th>Phone</th>
           <th>Balance</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
@@ -110,6 +121,21 @@ const isAddNewDrawerVisible = ref(false);
           <td>
             {{ supplier.balance }}
           </td>
+          <td>
+            <VIcon
+              icon="bx-edit"
+              size="28"
+              color="success"
+              class="me-2 cursor-pointer"
+            />
+            <VIcon
+              icon="bx-trash"
+              size="28"
+              color="error"
+              class="cursor-pointer"
+              @click="handleDelete(supplier)"
+            />
+          </td>
         </tr>
       </tbody>
 
@@ -118,7 +144,7 @@ const isAddNewDrawerVisible = ref(false);
           <td colspan="15" class="text-center font-weight-bold">No Data</td>
         </tr>
       </tfoot>
-      <Skeleton v-if="isFetching" :count="5" />
+      <Skeleton v-if="isFetching" :count="6" />
     </VTable>
 
     <VDivider />
@@ -133,6 +159,16 @@ const isAddNewDrawerVisible = ref(false);
       />
     </VCardText>
   </VCard>
+  <!-- :isDrawerVisible="isAddNewDrawerVisible"
+  @update:isDrawerVisible="v => isAddNewDrawerVisible = v" -->
+  <AddNewDrawer
+    v-model:isDrawerVisible="isAddNewDrawerVisible"
+    @fetchDatas="fetchData(true)"
+  />
 
-  <AddNewDrawer v-model="isAddNewDrawerVisible" />
+  <DeleteItemDialog
+    v-model:id="deleteData.id"
+    :title="deleteData.title"
+    @fetchDatas="fetchData(true)"
+  />
 </template>
