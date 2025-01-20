@@ -16,8 +16,7 @@ const isValid = ref(false);
 const formRef = ref();
 const formData = ref({
   name: "",
-  address: "",
-  phone_number: "",
+  description: "",
 });
 const isLoading = ref(false);
 
@@ -25,7 +24,7 @@ const onSubmit = async () => {
   if (!isValid.value) return;
   try {
     isLoading.value = true;
-    const response = await axios.post("/suppliers", formData.value);
+    const response = await axios.post("/categories", formData.value);
     if (response.status === 201) {
       emit("fetchDatas");
       handleModelUpdate(false);
@@ -72,19 +71,14 @@ const handleModelUpdate = (val) => {
             />
           </VCol>
           <VCol cols="12">
-            <VTextField
-              label="Address"
-              v-model="formData.address"
+            <VTextarea
+              label="Description"
+              v-model="formData.description"
               :rules="[requiredValidator]"
+              rows="3"
             />
           </VCol>
-          <VCol cols="12">
-            <VTextField
-              label="Phone Number"
-              v-model="formData.phone_number"
-              :rules="[requiredValidator]"
-            />
-          </VCol>
+          
           <VCol cols="12" class="d-flex gap-2">
             <VBtn type="submit" :loading="isLoading" class="custom-loader_color"
               >Submit</VBtn

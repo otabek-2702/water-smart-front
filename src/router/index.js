@@ -16,11 +16,13 @@ const router = createRouter({
           name: "Suppliers",
           component: () => import("../pages/suppliers.vue"),
         },
-
         {
-          path: "typography",
-          component: () => import("../pages/tables.vue"),
+          path: "categories",
+          name: "Categories",
+          component: () => import("../pages/categories.vue"),
         },
+
+       
       ],
     },
     {
@@ -28,6 +30,7 @@ const router = createRouter({
       component: () => import("../layouts/blank.vue"),
       children: [
         {
+          name:"Login",
           path: "login",
           component: () => import("../pages/login.vue"),
         },

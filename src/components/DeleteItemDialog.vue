@@ -11,6 +11,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  endpoint: {
+    type: String,
+    required: true,
+  },
 });
 
 const emit = defineEmits(["update:id", "fetchDatas"]);
@@ -21,7 +25,7 @@ const onCancel = () => {
 
 const onSubmit = async () => {
   try {
-    const response = await axios.delete(`/suppliers/${props.id}`);
+    const response = await axios.delete(`/${props.endpoint}/${props.id}`);
     if (response.status === 204) {
       emit("fetchDatas");
       onCancel();

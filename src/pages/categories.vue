@@ -2,14 +2,13 @@
 import axios from "@/axios";
 import DeleteItemDialog from "@/components/DeleteItemDialog.vue";
 import Skeleton from "@/components/Skeleton.vue";
-import AddNewDrawer from "@/views/supplier/AddNewDrawer.vue";
-import UpdateDrawer from "@/views/supplier/UpdateDrawer.vue";
+import AddNewDrawer from "@/views/category/AddNewDrawer.vue";
+import UpdateDrawer from "@/views/category/UpdateDrawer.vue";
 import { watch } from "vue";
-import { watchEffect } from "vue";
 import { onMounted } from "vue";
 
 const isFetching = ref(false);
-const suppliers = ref([]);
+const categories = ref([]);
 const paginationData = ref({});
 const current_page = ref(1);
 const last_fetched_page = ref(null);
@@ -25,14 +24,14 @@ const fetchData = async (force) => {
 
   try {
     isFetching.value = true;
-    const response = await axios.get("suppliers", {
+    const response = await axios.get("categories", {
       params: {
         per_page: 30,
         page: current_page.value ?? 1,
         search: finalSearch.value,
       },
     });
-    suppliers.value = response.data.suppliers;
+    categories.value = response.data.categories;
     paginationData.value = response.data.meta.pagination;
     last_fetched_page.value = current_page.value;
   } catch (error) {
@@ -99,55 +98,48 @@ const handleDelete = (data) => {
         <tr>
           <th class="text-uppercase">ID</th>
           <th>Name</th>
-          <th>Address</th>
-          <th>Phone</th>
-          <th>Balance</th>
-          <th  data-column="actions">Actions</th>
+          <th>Description</th>
+          <th data-column="actions">Actions</th>
         </tr>
       </thead>
 
       <tbody v-if="!isFetching">
-        <tr v-for="supplier in suppliers" :key="supplier.id">
+        <tr v-for="category in categories" :key="category.id">
           <td>
-            {{ supplier.id }}
+            {{ category.id }}
           </td>
           <td>
-            {{ supplier.name }}
+            {{ category.name }}
           </td>
           <td>
-            {{ supplier.address }}
+            {{ category.description }}
           </td>
-          <td>
-            {{ supplier.phone_number }}
-          </td>
-          <td>
-            {{ supplier.balance }}
-          </td>
-          <td  data-column="actions">
+          
+          <td data-column="actions">
             <VIcon
               icon="bx-edit"
               size="28"
               color="success"
               class="me-2 cursor-pointer"
-              @click="updateItemId = supplier.id"
+              @click="updateItemId = category.id"
             />
             <VIcon
               icon="bx-trash"
               size="28"
               color="error"
               class="cursor-pointer"
-              @click="handleDelete(supplier)"
+              @click="handleDelete(category)"
             />
           </td>
         </tr>
       </tbody>
 
-      <tfoot v-if="!isFetching && !suppliers.length">
+      <tfoot v-if="!isFetching && !categories.length">
         <tr>
           <td colspan="15" class="text-center font-weight-bold">No Data</td>
         </tr>
       </tfoot>
-      <Skeleton v-if="isFetching" :count="6" />
+      <Skeleton v-if="isFetching" :count="4" />
     </VTable>
 
     <VDivider />
@@ -155,7 +147,7 @@ const handleDelete = (data) => {
     <VCardText class="d-flex">
       <VSpacer />
       <VPagination
-        v-if="suppliers.length"
+        v-if="categories.length"
         :length="paginationData.total_pages"
         total-visible="7"
         v-model="current_page"
@@ -177,7 +169,7 @@ const handleDelete = (data) => {
   <DeleteItemDialog
     v-model:id="deleteData.id"
     :title="deleteData.title"
-    endpoint="suppliers"
+    endpoint="categories"
     @fetchDatas="fetchData(true)"
   />
 </template>

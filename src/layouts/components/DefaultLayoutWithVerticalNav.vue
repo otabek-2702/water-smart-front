@@ -70,19 +70,12 @@ const upgradeBanner = computed(() => {
       />
       <VerticalNavLink
         :item="{
-          title: 'Account Settings',
-          icon: 'mdi-account-cog-outline',
-          to: '/account-settings',
+          title: 'Categories',
+          icon: 'mdi-view-grid-plus-outline',
+          to: {name: 'Categories'},
         }"
       />
 
-      <VerticalNavLink
-        :item="{
-          title: 'Typography',
-          icon: 'mdi-alpha-t-box-outline',
-          to: '/typography',
-        }"
-      />
     </template>
 
     <!-- 👉 Pages -->
