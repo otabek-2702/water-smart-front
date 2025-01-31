@@ -63,6 +63,20 @@ const upgradeBanner = computed(() => {
     <template #vertical-nav-content>
       <VerticalNavLink
         :item="{
+          title: 'Roles',
+          icon: 'mdi-shield-account',
+          to: { name: 'Roles' },
+        }"
+      />
+      <VerticalNavLink
+        :item="{
+          title: 'Users',
+          icon: 'mdi-account-multiple',
+          to: { name: 'Users' },
+        }"
+      />
+      <VerticalNavLink
+        :item="{
           title: 'Suppliers',
           icon: 'bx-user',
           to: { name: 'Suppliers' },
@@ -73,6 +87,14 @@ const upgradeBanner = computed(() => {
           title: 'Categories',
           icon: 'mdi-view-grid-plus-outline',
           to: {name: 'Categories'},
+        }"
+      />
+
+      <VerticalNavLink
+        :item="{
+          title: 'Stock Invoices',
+          icon: 'mdi-clipboard-text-outline',
+          to: {name: 'StockInvoices'},
         }"
       />
 

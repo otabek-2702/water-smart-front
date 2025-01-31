@@ -2,13 +2,13 @@
 import axios from "@/axios";
 import DeleteItemDialog from "@/components/DeleteItemDialog.vue";
 import Skeleton from "@/components/Skeleton.vue";
-import AddNewDrawer from "@/views/supplier/AddNewDrawer.vue";
-import UpdateDrawer from "@/views/supplier/UpdateDrawer.vue";
+import AddNewDrawer from "@/views/user/AddNewDrawer.vue";
+import UpdateDrawer from "@/views/user/UpdateDrawer.vue";
 import { watch } from "vue";
 import { onMounted } from "vue";
 
 const isFetching = ref(false);
-const suppliers = ref([]);
+const users = ref([]);
 const paginationData = ref({});
 const current_page = ref(1);
 const last_fetched_page = ref(null);
@@ -24,14 +24,15 @@ const fetchData = async (force) => {
 
   try {
     isFetching.value = true;
-    const response = await axios.get("suppliers", {
+    const response = await axios.get("users", {
       params: {
         per_page: 30,
         page: current_page.value ?? 1,
         search: finalSearch.value,
       },
     });
-    suppliers.value = response.data.suppliers;
+
+    users.value = response.data.users;
     paginationData.value = response.data.meta.pagination;
     last_fetched_page.value = current_page.value;
   } catch (error) {
@@ -60,7 +61,6 @@ const isAddNewDrawerVisible = ref(false);
 const updateItemId = ref(0);
 const deleteData = ref({ id: 0, title: "" });
 
-const handle = () => console.log("handle clicked");
 const handleDelete = (data) => {
   deleteData.value = {
     id: data.id,
@@ -98,55 +98,51 @@ const handleDelete = (data) => {
         <tr>
           <th class="text-uppercase">ID</th>
           <th>Name</th>
-          <th>Address</th>
-          <th>Phone</th>
-          <th>Balance</th>
-          <th  data-column="actions">Actions</th>
+          <th>User Name</th>
+          <th>Roles</th>
+          <th data-column="actions">Actions</th>
         </tr>
       </thead>
 
       <tbody v-if="!isFetching">
-        <tr v-for="supplier in suppliers" :key="supplier.id">
+        <tr v-for="user in users" :key="user.id">
           <td>
-            {{ supplier.id }}
+            {{ user.id }}
           </td>
           <td>
-            {{ supplier.name }}
+            {{ user.name }}
           </td>
           <td>
-            {{ supplier.address }}
+            {{ user.username }}
           </td>
           <td>
-            {{ supplier.phone_number }}
+            {{ user.roles?.map((el) => el.name).join(", ") }}
           </td>
-          <td>
-            {{ supplier.balance }}
-          </td>
-          <td  data-column="actions">
+          <td data-column="actions">
             <VIcon
               icon="bx-edit"
               size="28"
               color="success"
               class="me-2 cursor-pointer"
-              @click="updateItemId = supplier.id"
+              @click="updateItemId = user.id"
             />
             <VIcon
               icon="bx-trash"
               size="28"
               color="error"
               class="cursor-pointer"
-              @click="handleDelete(supplier)"
+              @click="handleDelete(user)"
             />
           </td>
         </tr>
       </tbody>
 
-      <tfoot v-if="!isFetching && !suppliers.length">
+      <tfoot v-if="!isFetching && !users.length">
         <tr>
           <td colspan="15" class="text-center font-weight-bold">No Data</td>
         </tr>
       </tfoot>
-      <Skeleton v-if="isFetching" :count="6" />
+      <Skeleton v-if="isFetching" :count="5" />
     </VTable>
 
     <VDivider />
@@ -154,7 +150,7 @@ const handleDelete = (data) => {
     <VCardText class="d-flex">
       <VSpacer />
       <VPagination
-        v-if="suppliers.length"
+        v-if="users.length"
         :length="paginationData.total_pages"
         total-visible="7"
         v-model="current_page"
@@ -168,15 +164,12 @@ const handleDelete = (data) => {
     @fetchDatas="fetchData(true)"
   />
 
-  <UpdateDrawer
-    v-model:id="updateItemId"
-    @fetchDatas="fetchData(true)"
-  />
+  <UpdateDrawer v-model:id="updateItemId" @fetchDatas="fetchData(true)" />
 
   <DeleteItemDialog
     v-model:id="deleteData.id"
     :title="deleteData.title"
-    endpoint="suppliers"
+    endpoint="users"
     @fetchDatas="fetchData(true)"
   />
 </template>

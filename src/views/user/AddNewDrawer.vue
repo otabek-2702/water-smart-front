@@ -1,6 +1,8 @@
 <script setup>
 import axios from "@/axios";
+import { fetchOptions } from "@/helpers";
 import { requiredValidator } from "@/plugins/validators";
+import { onMounted } from "vue";
 import { nextTick } from "vue";
 
 const props = defineProps({
@@ -16,15 +18,18 @@ const isValid = ref(false);
 const formRef = ref();
 const formData = ref({
   name: "",
-  description: "",
+  username: "",
+  password: "",
+  roles: [],
 });
 const isLoading = ref(false);
+const isPasswordVisible = ref(false);
 
 const onSubmit = async () => {
   if (!isValid.value) return;
   try {
     isLoading.value = true;
-    const response = await axios.post("/categories", formData.value);
+    const response = await axios.post("/users", formData.value);
     if (response.status === 201) {
       emit("fetchDatas");
       handleModelUpdate(false);
@@ -46,6 +51,11 @@ const handleModelUpdate = (val) => {
     });
   }
 };
+
+const roles = ref([]);
+onMounted(async () => {
+  roles.value = await fetchOptions("roles");
+});
 </script>
 
 <template>
@@ -71,11 +81,32 @@ const handleModelUpdate = (val) => {
             />
           </VCol>
           <VCol cols="12">
-            <VTextarea
-              label="Description"
-              v-model="formData.description"
+            <VTextField
+              label="User Name"
+              v-model="formData.username"
               :rules="[requiredValidator]"
-              rows="3"
+            />
+          </VCol>
+
+          <VCol cols="12">
+            <VTextField
+              label="Password"
+              v-model="formData.password"
+              :rules="[requiredValidator]"
+              :type="isPasswordVisible ? 'text' : 'password'"
+              :append-inner-icon="isPasswordVisible ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="isPasswordVisible = !isPasswordVisible"
+              autocomplete="new-password"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VSelect
+              multiple
+              label="Roles"
+              :items="roles"
+              item-title="name"
+              item-value="id"
+              v-model="formData.roles"
             />
           </VCol>
 

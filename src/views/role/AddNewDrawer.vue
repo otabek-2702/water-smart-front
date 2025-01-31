@@ -1,6 +1,8 @@
 <script setup>
 import axios from "@/axios";
+import { fetchOptions } from "@/helpers";
 import { requiredValidator } from "@/plugins/validators";
+import { onMounted } from "vue";
 import { nextTick } from "vue";
 
 const props = defineProps({
@@ -16,7 +18,7 @@ const isValid = ref(false);
 const formRef = ref();
 const formData = ref({
   name: "",
-  description: "",
+  permissions: [],
 });
 const isLoading = ref(false);
 
@@ -24,7 +26,7 @@ const onSubmit = async () => {
   if (!isValid.value) return;
   try {
     isLoading.value = true;
-    const response = await axios.post("/categories", formData.value);
+    const response = await axios.post("/roles", formData.value);
     if (response.status === 201) {
       emit("fetchDatas");
       handleModelUpdate(false);
@@ -46,6 +48,12 @@ const handleModelUpdate = (val) => {
     });
   }
 };
+
+const permissions = ref([]);
+onMounted(async () => {
+  permissions.value = await fetchOptions("permissions");
+});
+
 </script>
 
 <template>
@@ -71,11 +79,13 @@ const handleModelUpdate = (val) => {
             />
           </VCol>
           <VCol cols="12">
-            <VTextarea
-              label="Description"
-              v-model="formData.description"
-              :rules="[requiredValidator]"
-              rows="3"
+            <VSelect
+              multiple
+              label="Permissions"
+              :items="permissions"
+              item-title="name"
+              item-value="id"
+              v-model="formData.permissions"
             />
           </VCol>
 

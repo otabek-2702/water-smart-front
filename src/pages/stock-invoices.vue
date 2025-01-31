@@ -1,14 +1,14 @@
 <script setup>
 import axios from "@/axios";
-import DeleteItemDialog from "@/components/DeleteItemDialog.vue";
 import Skeleton from "@/components/Skeleton.vue";
-import AddNewDrawer from "@/views/supplier/AddNewDrawer.vue";
-import UpdateDrawer from "@/views/supplier/UpdateDrawer.vue";
+import AddNewDialog from "@/views/stock-invoice/AddNewDialog.vue";
+import InfoDialog from "@/views/stock-invoice/InfoDialog.vue";
 import { watch } from "vue";
 import { onMounted } from "vue";
+import { transformPrice , formatTimestamp} from "@/helpers";
 
 const isFetching = ref(false);
-const suppliers = ref([]);
+const stock_invoices = ref([]);
 const paginationData = ref({});
 const current_page = ref(1);
 const last_fetched_page = ref(null);
@@ -24,14 +24,15 @@ const fetchData = async (force) => {
 
   try {
     isFetching.value = true;
-    const response = await axios.get("suppliers", {
+    const response = await axios.get("stock_invoices", {
       params: {
         per_page: 30,
         page: current_page.value ?? 1,
         search: finalSearch.value,
       },
     });
-    suppliers.value = response.data.suppliers;
+
+    stock_invoices.value = response.data.stock_invoices;
     paginationData.value = response.data.meta.pagination;
     last_fetched_page.value = current_page.value;
   } catch (error) {
@@ -55,17 +56,15 @@ const handleInput = (val) => {
   }
 };
 
-// Add, Edit, Delete
-const isAddNewDrawerVisible = ref(false);
+// Add, Edit
 const updateItemId = ref(0);
-const deleteData = ref({ id: 0, title: "" });
 
-const handle = () => console.log("handle clicked");
-const handleDelete = (data) => {
-  deleteData.value = {
-    id: data.id,
-    title: data.name,
-  };
+const resolveInvoiceStatus = (status) => {
+  return {
+    draft: "primary",
+    rejected: "secondary",
+    confirmed: "success",
+  }[status];
 };
 </script>
 
@@ -86,7 +85,7 @@ const handleDelete = (data) => {
         </VCol>
 
         <VCol cols="auto">
-          <VBtn @click="isAddNewDrawerVisible = true"> Add New </VBtn>
+          <AddNewDialog />
         </VCol>
       </VRow>
     </VCardText>
@@ -97,56 +96,44 @@ const handleDelete = (data) => {
       <thead>
         <tr>
           <th class="text-uppercase">ID</th>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Phone</th>
-          <th>Balance</th>
-          <th  data-column="actions">Actions</th>
+          <th>Supplier</th>
+          <th>Status</th>
+          <th>Trx type</th>
+          <th>Total summ</th>
+          <th>Date</th>
         </tr>
       </thead>
 
       <tbody v-if="!isFetching">
-        <tr v-for="supplier in suppliers" :key="supplier.id">
+        <tr v-for="invoice in stock_invoices" :key="invoice.id">
           <td>
-            {{ supplier.id }}
-          </td>
-          <td>
-            {{ supplier.name }}
+            {{ invoice.id }}
           </td>
           <td>
-            {{ supplier.address }}
+            {{ invoice.supplier.name }}
           </td>
           <td>
-            {{ supplier.phone_number }}
+            <VChip
+              variant="tonal"
+              label
+              :color="resolveInvoiceStatus(invoice.status.name)"
+              class="mr-2"
+            >
+              {{ invoice.status.translate }}
+            </VChip>
           </td>
-          <td>
-            {{ supplier.balance }}
-          </td>
-          <td  data-column="actions">
-            <VIcon
-              icon="bx-edit"
-              size="28"
-              color="success"
-              class="me-2 cursor-pointer"
-              @click="updateItemId = supplier.id"
-            />
-            <VIcon
-              icon="bx-trash"
-              size="28"
-              color="error"
-              class="cursor-pointer"
-              @click="handleDelete(supplier)"
-            />
-          </td>
+          <td class="text-capitalize">{{ invoice.trx_type.name }}</td>
+          <td>{{ transformPrice(invoice.total_amount) }}</td>
+          <td>{{ formatTimestamp(invoice.created_at) }}</td>
         </tr>
       </tbody>
 
-      <tfoot v-if="!isFetching && !suppliers.length">
+      <tfoot v-if="!isFetching && !stock_invoices.length">
         <tr>
           <td colspan="15" class="text-center font-weight-bold">No Data</td>
         </tr>
       </tfoot>
-      <Skeleton v-if="isFetching" :count="6" />
+      <Skeleton v-if="isFetching" :count="5" />
     </VTable>
 
     <VDivider />
@@ -154,29 +141,13 @@ const handleDelete = (data) => {
     <VCardText class="d-flex">
       <VSpacer />
       <VPagination
-        v-if="suppliers.length"
+        v-if="stock_invoices.length"
         :length="paginationData.total_pages"
         total-visible="7"
         v-model="current_page"
       />
     </VCardText>
   </VCard>
-  <!-- :isDrawerVisible="isAddNewDrawerVisible"
-  @update:isDrawerVisible="v => isAddNewDrawerVisible = v" -->
-  <AddNewDrawer
-    v-model:isDrawerVisible="isAddNewDrawerVisible"
-    @fetchDatas="fetchData(true)"
-  />
 
-  <UpdateDrawer
-    v-model:id="updateItemId"
-    @fetchDatas="fetchData(true)"
-  />
-
-  <DeleteItemDialog
-    v-model:id="deleteData.id"
-    :title="deleteData.title"
-    endpoint="suppliers"
-    @fetchDatas="fetchData(true)"
-  />
+  <InfoDialog v-model:id="updateItemId" @fetchDatas="fetchData(true)" />
 </template>

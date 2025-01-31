@@ -21,8 +21,21 @@ const router = createRouter({
           name: "Categories",
           component: () => import("../pages/categories.vue"),
         },
-
-       
+        {
+          path: "roles",
+          name: "Roles",
+          component: () => import("../pages/roles.vue"),
+        },
+        {
+          path: "users",
+          name: "Users",
+          component: () => import("../pages/users.vue"),
+        },
+        {
+          path: "stock-invoices",
+          name: "StockInvoices",
+          component: () => import("../pages/stock-invoices.vue"),
+        },
       ],
     },
     {
@@ -30,7 +43,7 @@ const router = createRouter({
       component: () => import("../layouts/blank.vue"),
       children: [
         {
-          name:"Login",
+          name: "Login",
           path: "login",
           component: () => import("../pages/login.vue"),
         },
@@ -53,5 +66,3 @@ router.beforeEach((to, from, next) => {
 });
 
 export default router;
-
-
