@@ -83,7 +83,7 @@ watch(
   }
 );
 
-const onSubmit = async () => {
+const onSubmit = async (confirmation = false) => {
   try {
     isFetching.value = "submit";
 
@@ -92,6 +92,28 @@ const onSubmit = async () => {
       trx_type: formData.value.trx_type,
       items: invoice_items.value,
     });
+
+    if (confirmation) {
+      return true;
+    }
+    emit("fetchDatas");
+    handleDialogClose();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isFetching.value = "";
+  }
+};
+
+const onConfirm = async () => {
+  try {
+    const submitted = await onSubmit(true)
+
+    if (!submitted) return;
+
+    isFetching.value = "confirm";
+
+    await axios.post(`stock_invoices/${props.id}/confirm`);
 
     emit("fetchDatas");
     handleDialogClose();
@@ -221,6 +243,7 @@ const totalQuantity = computed(() =>
               item-title="name"
               item-value="id"
               :rules="[requiredValidator]"
+              :readonly="status.name !== 'draft'"
             />
           </VCol>
           <VCol cols="7" />
@@ -230,6 +253,7 @@ const totalQuantity = computed(() =>
               v-model="formData.trx_type"
               :items="trx_types"
               :rules="[requiredValidator]"
+              :readonly="status.name !== 'draft'"
             />
           </VCol>
 
@@ -276,7 +300,7 @@ const totalQuantity = computed(() =>
             </VTable>
             <VDivider />
           </VCol>
-          <VForm class="w-100" ref="itemForm">
+          <VForm class="w-100" ref="itemForm" v-if="status.name === 'draft'">
             <VRow>
               <VCol cols="4">
                 <VAutocomplete
@@ -336,10 +360,25 @@ const totalQuantity = computed(() =>
               </VCol>
             </VRow>
           </VForm>
-          <VCol cols="12" class="d-flex pt-6">
+          <VCol cols="12" class="d-flex pt-6 gap-4" v-if="status.name === 'draft'">
             <VSpacer />
             <VBtn type="submit" :loading="isFetching === 'submit'">
               Submit
+            </VBtn>
+            <VBtn
+              @click="onConfirm"
+              :loading="isFetching === 'confirm'"
+              color="success"
+            >
+              Confirm
+            </VBtn>
+
+            <VBtn
+              @click="onReject"
+              :loading="isFetching === 'reject'"
+              color="secondary"
+            >
+              Reject
             </VBtn>
           </VCol>
         </VRow>

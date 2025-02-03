@@ -127,7 +127,7 @@ const resolveInvoiceStatus = (status) => {
               {{ invoice.status.translate }}
             </VChip>
           </td>
-          <td class="text-capitalize">{{ invoice.trx_type.name }}</td>
+          <td>{{ invoice.trx_type.translate }}</td>
           <td>{{ transformPrice(invoice.total_amount) }}</td>
           <td>{{ formatTimestamp(invoice.created_at) }}</td>
         </tr>
