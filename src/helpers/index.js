@@ -26,6 +26,19 @@ export const transformPrice = (price, nullable = false) => {
   return formattedPrice ?? "";
 };
 
+
+export const removeSpaces = (input) => {
+  // Remove spaces, thousands separators, and handle decimal points
+  const newVal = input?.toString()
+      .replace(/\s+/g, "")               // Remove spaces
+      .replace(/[^\d.-]/g, "")           // Remove anything that isn't a digit, dot, or minus
+  // .replace(/(\..*?)\./g, "$1");      // Ensure only one decimal point
+
+  const parsedValue = Number(newVal);
+
+  return isNaN(parsedValue) ? 0 : parsedValue;
+};
+
 export function formatTimestamp(isoString) {
   if (!isoString) return "";
   const date = new Date(isoString);

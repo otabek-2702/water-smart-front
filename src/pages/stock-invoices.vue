@@ -5,7 +5,7 @@ import AddNewDialog from "@/views/stock-invoice/AddNewDialog.vue";
 import InfoDialog from "@/views/stock-invoice/InfoDialog.vue";
 import { watch } from "vue";
 import { onMounted } from "vue";
-import { transformPrice , formatTimestamp} from "@/helpers";
+import { transformPrice, formatTimestamp } from "@/helpers";
 
 const isFetching = ref(false);
 const stock_invoices = ref([]);
@@ -85,7 +85,7 @@ const resolveInvoiceStatus = (status) => {
         </VCol>
 
         <VCol cols="auto">
-          <AddNewDialog />
+          <AddNewDialog @fetchDatas="fetchData(true)" />
         </VCol>
       </VRow>
     </VCardText>
@@ -105,7 +105,12 @@ const resolveInvoiceStatus = (status) => {
       </thead>
 
       <tbody v-if="!isFetching">
-        <tr v-for="invoice in stock_invoices" :key="invoice.id">
+        <tr
+          v-for="invoice in stock_invoices"
+          :key="invoice.id"
+          @click="updateItemId = invoice.id"
+          class="cursor-pointer"
+        >
           <td>
             {{ invoice.id }}
           </td>
@@ -133,7 +138,7 @@ const resolveInvoiceStatus = (status) => {
           <td colspan="15" class="text-center font-weight-bold">No Data</td>
         </tr>
       </tfoot>
-      <Skeleton v-if="isFetching" :count="5" />
+      <Skeleton v-if="isFetching" :count="6" />
     </VTable>
 
     <VDivider />
